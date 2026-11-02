@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: w110-app
-          image: localhost/w110-app:v1   # the pipeline will replace this with the registry image + new tag
+          image: ghcr.io/srushtigadale143/w110-app:5e2059e
           ports:
             - containerPort: 8080
           readinessProbe:
