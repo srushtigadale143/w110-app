@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: w110-app
-          image: ghcr.io/srushtigadale143/w110-app:0886849
+          image: ghcr.io/srushtigadale143/w110-app:2ef3d89
           ports:
             - containerPort: 8080
           readinessProbe:
