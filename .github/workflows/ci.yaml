@@ -1,0 +1,49 @@
+name: build-and-deploy
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "k8s/**"          # the pipeline itself edits k8s/, so don't re-trigger on that
+  workflow_dispatch:       # allows a manual "Run workflow" button
+
+permissions:
+  contents: write          # to commit the new image tag back to the repo
+  packages: write          # to push the image to ghcr.io
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set image name and tag
+        run: |
+          echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+          echo "TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ env.TAG }}
+            ${{ env.IMAGE }}:latest
+
+      - name: Update image tag in k8s/deployment.yaml (GitOps)
+        run: |
+          sed -i "s#^\(\s*image:\s*\).*#\1${IMAGE}:${TAG}#" k8s/deployment.yaml
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add k8s/deployment.yaml
+          git commit -m "Deploy ${IMAGE}:${TAG} [skip ci]"
+          git push
