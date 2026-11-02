@@ -1,0 +1,11 @@
+{
+  "id": "reference",
+  "name": "Reference treasure hunt",
+  "width": 3,
+  "height": 3,
+  "start": { "x": 0, "y": 0 },
+  "walls": [{ "x": 1, "y": 1 }],
+  "treasures": [{ "id": "t1", "x": 2, "y": 0, "value": 10 }],
+  "exit": { "x": 2, "y": 2 },
+  "initialMoves": 6
+}

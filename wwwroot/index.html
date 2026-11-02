@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>W1.10 foundation (stand-in)</title>
+<style>body{font-family:sans-serif;margin:2rem;max-width:60rem} pre{background:#f4f4f4;padding:.75rem;white-space:pre-wrap}</style>
+</head>
+<body>
+<h1>Reference board <small>(stand-in app, release foundation-observe-a)</small></h1>
+<p>Served client configuration:</p>
+<pre id="config">loading...</pre>
+<label>Fixture
+  <select id="board">
+    <option value="reference">Reference</option>
+    <option value="missing">Missing</option>
+    <option value="slow">Slow</option>
+    <option value="overdue">Overdue</option>
+  </select>
+</label>
+<button id="load">Load board</button>
+<h2>Browser observation</h2>
+<pre id="observation">(no action yet)</pre>
+<h2>Received body</h2>
+<pre id="body">(nothing received)</pre>
+<script>
+let client;
+fetch("/client.json", { cache: "no-store" }).then(r => r.json()).then(c => {
+  client = c;
+  document.getElementById("config").textContent = JSON.stringify(c);
+});
+
+// One attempt: abort if the COMPLETE body has not arrived within deadlineMs.
+async function attempt(fixture, actionId) {
+  const requestId = crypto.randomUUID();
+  const ctrl = new AbortController();
+  const started = performance.now();
+  const timer = setTimeout(() => ctrl.abort(), client.deadlineMs);
+  try {
+    const r = await fetch(`/api/boards/${fixture}`, {
+      signal: ctrl.signal, cache: "no-store",
+      headers: { "X-Request-Id": requestId, "X-Action-Id": actionId } });
+    const text = await r.text();
+    return { result: { request_id: requestId, received: true, status: r.status,
+               echoed_request_id: r.headers.get("X-Request-Id"), release: r.headers.get("X-Lab-Release"),
+               environment: r.headers.get("X-Lab-Environment"), elapsed_ms: Math.round(performance.now() - started) }, text };
+  } catch (e) {
+    return { result: { request_id: requestId, received: false, status: null, error: e.name,
+                       elapsed_ms: Math.round(performance.now() - started) }, text: null };
+  } finally { clearTimeout(timer); }
+}
+
+document.getElementById("load").addEventListener("click", async () => {
+  window.lastObservation = undefined;
+  const fixture = document.getElementById("board").value;
+  const actionId = crypto.randomUUID();
+  const started = performance.now();
+  const attempts = []; let final = null, body = null;
+  // Retry only after an unavailable result; a received HTTP error ends the action.
+  for (let i = 0; i <= client.retries; i++) {
+    const { result, text } = await attempt(fixture, actionId);
+    attempts.push(result);
+    if (result.received) { final = result; body = text; break; }
+  }
+  const obs = { action_id: actionId, fixture, client,
+    outcome: final ? (final.status < 400 ? "received" : "http-error") : "unavailable",
+    received_status: final ? final.status : null, echoed_request_id: final ? final.echoed_request_id : null,
+    release: final ? final.release : null, environment: final ? final.environment : null,
+    action_elapsed_ms: Math.round(performance.now() - started), attempts };
+  document.getElementById("observation").textContent = JSON.stringify(obs, null, 2);
+  document.getElementById("body").textContent = body ?? "(nothing received)";
+  window.lastObservation = obs;
+});
+</script>
+</body>
+</html>
