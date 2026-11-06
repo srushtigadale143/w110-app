@@ -1,12 +1,34 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>W1.10 foundation (stand-in)</title>
-<style>body{font-family:sans-serif;margin:2rem;max-width:60rem} pre{background:#f4f4f4;padding:.75rem;white-space:pre-wrap}</style>
+<head><meta charset="utf-8"><title>Treasure Hunt Boards</title>
+<style>
+  body{font-family:"Segoe UI",sans-serif;margin:0;background:#eef2f7;color:#1f2937}
+  header{background:linear-gradient(90deg,#4f46e5,#06b6d4);color:#fff;padding:1.5rem 2rem;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+  header h1{margin:0;font-size:1.8rem}
+  header p{margin:.35rem 0 0;opacity:.9}
+  .badge{display:inline-block;background:#fff;color:#4f46e5;font-weight:600;font-size:.8rem;padding:.2rem .65rem;border-radius:999px;margin-left:.6rem;vertical-align:middle}
+  main{max-width:60rem;margin:1.5rem auto;padding:0 1rem}
+  .card{background:#fff;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  .card h2{margin-top:0;font-size:1.15rem;color:#4f46e5}
+  select,button{font-size:1rem;padding:.45rem .8rem;border-radius:8px;border:1px solid #cbd5e1}
+  button{background:#4f46e5;color:#fff;border:none;cursor:pointer;margin-left:.5rem}
+  button:hover{background:#4338ca}
+  pre{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:.75rem;white-space:pre-wrap;font-size:.85rem}
+  footer{text-align:center;color:#64748b;font-size:.85rem;padding:1rem}
+</style>
 </head>
 <body>
-<h1>Reference board <small>(stand-in app, release foundation-observe-a)</small></h1>
-<p>Served client configuration:</p>
+<header>
+  <h1>&#x1F5FA;&#xFE0F; Treasure Hunt Boards <span class="badge">release foundation-observe-c</span></h1>
+  <p>Built by GitHub Actions &middot; Deployed to k3s by Argo CD (GitOps)</p>
+</header>
+<main>
+<div class="card">
+<h2>Client configuration</h2>
 <pre id="config">loading...</pre>
+</div>
+<div class="card">
+<h2>Load a board</h2>
 <label>Fixture
   <select id="board">
     <option value="reference">Reference</option>
@@ -16,10 +38,17 @@
   </select>
 </label>
 <button id="load">Load board</button>
+</div>
+<div class="card">
 <h2>Browser observation</h2>
 <pre id="observation">(no action yet)</pre>
+</div>
+<div class="card">
 <h2>Received body</h2>
 <pre id="body">(nothing received)</pre>
+</div>
+</main>
+<footer>Made by Srushti Gadale &middot; W1.10 bootcamp</footer>
 <script>
 let client;
 fetch("/client.json", { cache: "no-store" }).then(r => r.json()).then(c => {

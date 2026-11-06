@@ -1,11 +1,11 @@
-// Stand-in W1.10 foundation app (release foundation-observe-b) - NOT the official course app.
+// Stand-in W1.10 foundation app (release foundation-observe-c) - NOT the official course app.
 // Routes: /  /client.json  /healthz  /api/boards/{reference|missing|slow|overdue}
 // Every /api request writes one JSON completion record to stdout (app.log) and, if LOCAL_LOKI_URL is set, to Loki.
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 
-const string Release = "foundation-observe-b";
+const string Release = "foundation-observe-c";
 var environment = Environment.GetEnvironmentVariable("LAB_ENV") ?? "workshop-blue";
 var session = Environment.GetEnvironmentVariable("LAB_SESSION") ?? "local";
 var lokiUrl = Environment.GetEnvironmentVariable("LOCAL_LOKI_URL");
